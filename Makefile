@@ -36,9 +36,9 @@ no-filepath:
 	@! grep --color --include '*.go' -r '"path/filepath"' cmd internal pkg || ( \
 		echo 'error: Use of "path/filepath" is disallowed. See http://golang.org/issue/43768.' && false)
 
-test-wasm-node: platform-wasm
+test-wasm-node: esbuild
 	PATH="$(shell go env GOROOT)/misc/wasm:$$PATH" GOOS=js GOARCH=wasm go test ./internal/...
-	npm/esbuild-wasm/bin/esbuild --version
+	node scripts/wasm-tests.js
 
 test-wasm-browser: platform-wasm | scripts/browser/node_modules
 	cd scripts/browser && node browser-tests.js
@@ -130,7 +130,6 @@ platform-linux-ppc64le:
 
 platform-wasm: esbuild npm/esbuild-wasm/esbuild.wasm | scripts/node_modules
 	cd npm/esbuild-wasm && npm version "$(ESBUILD_VERSION)" --allow-same-version
-	mkdir -p npm/esbuild-wasm/lib
 	node scripts/esbuild.js ./esbuild --wasm
 
 platform-neutral: esbuild lib-typecheck | scripts/node_modules
